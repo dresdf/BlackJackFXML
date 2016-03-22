@@ -64,7 +64,7 @@
             </HBox>
             <HBox fx:id="playerLabels" alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="50.0">
                <children>
-                  <Label fx:id="playerName" text="" />
+                  <Label fx:id="playerName" text="Player" />
                   <Label fx:id="playerScore" text="0   points" />
                </children>
                <padding>

@@ -87,26 +87,26 @@ public class FXMLRootController implements Initializable {
     //logic
     @FXML
     private void handleButtonAction(ActionEvent event) {
-        
+
         //hit event.player plays
         if (event.getSource() == hitButton) {
 
             deck.deal(player);//deal card
             playerHandValue.setText("" + player.getHandValue());//update hand value label
             displayPlayerCards();//update images array
-            
+
             //check for blackjack or for bust. start endgame if true
             if (player.getHandValue() == WIN_SCORE) {
                 endGame();
             } else if (player.getHandValue() > WIN_SCORE) {
                 endGame();
             }
-          //stand event. player turn finishes. dealer turn starts
+            //stand event. player turn finishes. dealer turn starts
         } else if (event.getSource() == standButton) {
             //start drawing cards if dealer has less than player and value is under 17
-            while ((dealer.getHandValue() < player.getHandValue()) && (dealer.getHandValue() < 17)) {
+            while (dealer.getHandValue() < player.getHandValue()) {
                 deck.deal(dealer);//deal card to dealer
-                
+
                 //check for bust or higher than player. start endgame if true
                 if (dealer.getHandValue() > WIN_SCORE) {
                     endGame();
@@ -124,6 +124,28 @@ public class FXMLRootController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
+        clearTableCards();
+        this.dealer = new Player("Dealer");//create new dealer
+        this.player = new Player("Player");//create new player
+        this.deck = new Deck();//create new deck
+        
+        hitButton.setDisable(true);
+        standButton.setDisable(true);
+        dealButton.setDisable(false);
+
+    }
+
+    //returns the parameter for the imageView.setImage() method
+    private Image getCardImage(Card card) {
+        if (card.getIsVisible()) {
+            return card.getCARD_FRONT();
+        } else {
+            return card.getCARD_BACK();
+        }
+
+    }
+
+    private void clearTableCards() {
         dealerCard1.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
         dealerCard2.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
         dealerCard3.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
@@ -139,22 +161,6 @@ public class FXMLRootController implements Initializable {
         playerCard5.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
         playerCard6.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
         playerCard7.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
-
-        this.dealer = new Player("Dealer");//create new dealer
-        this.player = new Player("Player");//create new player
-        this.deck = new Deck();//create new deck
-        playerName.setText(player.getName());//TODO hardcode player name label value
-
-    }
-
-    //returns the parameter for the imageView.setImage() method
-    private Image getCardImage(Card card) {
-        if (card.getIsVisible()) {
-            return card.getCARD_FRONT();
-        } else {
-            return card.getCARD_BACK();
-        }
-
     }
 
     //start a new hand in the same game
@@ -163,7 +169,8 @@ public class FXMLRootController implements Initializable {
         dealer.reset();//reset dealer hand
         player.reset();//reset player hand
         deck.shuffle();//shuffle the deck
-        
+        clearTableCards();
+
         //start giving cards
         deck.deal(dealer);//card1 to dealer
         dealer.getHand().get(0).setIsVisible(false);// set card1 facedown
@@ -181,6 +188,10 @@ public class FXMLRootController implements Initializable {
         } else if ((dealer.getHandValue() == WIN_SCORE) || (player.getHandValue() == WIN_SCORE)) {
             endGame();
         }
+        
+        hitButton.setDisable(false);
+        standButton.setDisable(false);
+        dealButton.setDisable(true);
 
     }
 
@@ -219,8 +230,13 @@ public class FXMLRootController implements Initializable {
         }
 
         messageLabel.setText(winner);//set message label with win message
+        dealerScore.setText(dealer.getScore() + "   points");
+        playerScore.setText(player.getScore() + "   points");
         dealer.reset();//reset dealer hand
         player.reset();//reset player hand
+        hitButton.setDisable(true);
+        standButton.setDisable(true);
+        dealButton.setDisable(false);
 
     }
 
