@@ -1,3 +1,3 @@
 # BlackJackFXML
 
-FXML Application simulatin a blackjack game
+FXML Application simulating a blackjack game
