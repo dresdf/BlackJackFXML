@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 /**
  *
- * @author drago
+ * @author Dragos Secara
  */
 public class BlackjackFXML extends Application {
     

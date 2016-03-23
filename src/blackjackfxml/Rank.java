@@ -2,7 +2,7 @@ package blackjackfxml;
 
 /**
  *
- * @author drago
+ * @author Dragos Secara
  */
 public enum Rank {
 

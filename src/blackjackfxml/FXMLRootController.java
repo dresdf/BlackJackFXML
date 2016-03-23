@@ -14,7 +14,7 @@ import javafx.scene.image.ImageView;
 
 /**
  *
- * @author drago
+ * @author Dragos Secara
  */
 public class FXMLRootController implements Initializable {
 
