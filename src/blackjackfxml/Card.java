@@ -15,21 +15,20 @@ public class Card {
     private final Image CARD_FRONT;
     private final Image CARD_BACK;
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        if (isVisible) {
-            sb.append("[").append(this.getRANK()).append(" of ").append(this.getSUIT()).append("]");
-        } else {
-            sb.append("[HIDDEN CARD]");
-        }
-        return sb.toString();
-    }
-
-    private Image getCardImage(Card card) {
+    private Image getCardImage() {
         String fileName = "img/" + (this.SUIT.toString() + this.value).toLowerCase() + ".png";
         return new Image(getClass().getResourceAsStream(fileName));
-
+    }
+        
+    /**
+     * change the value for aces only
+     *
+     * @param value
+     */
+    public void setVALUE(int value) {
+        if (this.RANK.equals(Rank.ACE)) {
+            this.value = value;
+        }
     }
 
     public Rank getRANK() {
@@ -60,25 +59,11 @@ public class Card {
         return CARD_BACK;
     }
     
-
-
-    /**
-     * change the value for aces only
-     *
-     * @param value
-     */
-    public void setVALUE(int value) {
-        if (this.RANK.equals(Rank.ACE)) {
-            this.value = value;
-        }
-    }
-
     public Card(Suit suit, Rank rank) {
         this.SUIT = suit;
         this.RANK = rank;
         this.value = rank.value;
-//        this.cardImageFile = (this.SUIT.toString() + this.value).toLowerCase() + ".png";
-        this.CARD_FRONT = getCardImage(this);
+        this.CARD_FRONT = getCardImage();
         this.CARD_BACK = new Image(getClass().getResourceAsStream("img/card_back.png"));
     }
 

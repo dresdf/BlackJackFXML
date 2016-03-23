@@ -1,8 +1,6 @@
 package blackjackfxml;
 
 import java.util.ArrayList;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 
 /**
  *
@@ -44,19 +42,6 @@ public class Player {
     }
 
     /**
-     * creates a layout for printing a player's hand into the console
-     *
-     * @return
-     */
-    public String printHand() {
-        StringBuilder sb = new StringBuilder();
-        for (Card item : hand) {
-            sb.append(item).append("  ");
-        }
-        return sb.toString();
-    }
-
-    /**
      * reset the handvalue and clear list of cards in hand
      */
     public void reset() {
@@ -68,16 +53,12 @@ public class Player {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public ArrayList<Card> getHand() {
         return hand;
     }
 
     public int getHandValue() {
-        return handValue;
+        return this.handValue;
     }
 
     public int getScore() {

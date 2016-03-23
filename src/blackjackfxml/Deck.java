@@ -11,7 +11,6 @@ import java.util.Random;
 public class Deck {
 
     private ArrayList<Card> cards = new ArrayList<>();
-    private int cardsInDeck;
     private int packsInDeck;
 
     Random rand;
@@ -38,17 +37,6 @@ public class Deck {
             this.cards.remove(0);
             this.cards.trimToSize();
         }
-    }
-
-    /**
-     * remove all cards remaining in deck and fills it with new set of cards use number of packs already set by the constructor
-     */
-    public void refill() {
-        this.cards.clear();
-        for (int i = 0; i < this.packsInDeck; i++) {
-            createCardPack();
-        }
-        this.shuffle();
     }
 
     //add 52 standard cards into the cards array

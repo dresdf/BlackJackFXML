@@ -2,13 +2,11 @@ package blackjackfxml;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.Scanner;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ToolBar;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.image.Image;
@@ -25,7 +23,10 @@ public class FXMLRootController implements Initializable {
     private Player dealer;
     private Deck deck;
 
+//<editor-fold defaultstate="collapsed" desc="FXML links">
     //dealer
+    @FXML
+    private Label dealerHandValue;
     @FXML
     private Label dealerScore;
     @FXML
@@ -85,31 +86,42 @@ public class FXMLRootController implements Initializable {
     private Button standButton;
     @FXML
     private Button dealButton;
+//</editor-fold>
 
     //logic
     @FXML
     private void handleButtonAction(ActionEvent event) {
-        if (event.getSource() == hitButton) {
-            deck.deal(player);
-            playerHandValue.setText("" + player.getHandValue());
 
-            if (player.getHandValue() == 21) {
+        //hit event.player plays
+        if (event.getSource() == hitButton) {
+
+            deck.deal(player);//deal card
+            playerHandValue.setText("" + player.getHandValue());//update hand value label
+            displayPlayerCards();//update images array
+
+            //check for blackjack or for bust. start endgame if true
+            if (player.getHandValue() == WIN_SCORE) {
                 endGame();
             } else if (player.getHandValue() > WIN_SCORE) {
                 endGame();
-            } else {
-                displayPlayerCards();
             }
+            //stand event. player turn finishes. dealer turn starts
         } else if (event.getSource() == standButton) {
-            while (dealer.getHandValue() < 17) {
-                deck.deal(dealer);
-                if (dealer.getHandValue() > WIN_SCORE) {
-                    endGame();
-                    break;
-                } else if (dealer.getHandValue() > player.getHandValue()) {
-                    endGame();
-                    break;
+            if (dealer.getHandValue() <= player.getHandValue()) {
+                //start drawing cards if dealer has less than player
+                while (dealer.getHandValue() <= player.getHandValue()) {
+                    deck.deal(dealer);//deal card to dealer
+                    displayDealerCards();
+
+                    //check for bust or higher than player. start endgame if true
+                    if (dealer.getHandValue() > WIN_SCORE) {
+                        endGame();
+                    } else if (dealer.getHandValue() > player.getHandValue()) {
+                        endGame();
+                    }
                 }
+            } else {
+                endGame();
             }
         } else if (event.getSource() == dealButton) {
             startGame();
@@ -118,8 +130,32 @@ public class FXMLRootController implements Initializable {
     }
 
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
+    public void initialize(URL url, ResourceBundle rb
+    ) {
 
+        clearTableCards();
+        this.dealer = new Player("Dealer");//create new dealer
+        this.player = new Player("Player");//create new player
+        this.deck = new Deck();//create new deck
+
+        hitButton.setDisable(true);
+        standButton.setDisable(true);
+        dealButton.setDisable(false);
+
+    }
+
+    //returns the parameter for the imageView.setImage() method
+    private Image getCardImage(Card card) {
+        if (card.getIsVisible()) {
+            return card.getCARD_FRONT();
+        } else {
+            return card.getCARD_BACK();
+        }
+
+    }
+
+    //set all hand card images to default
+    private void clearTableCards() {
         dealerCard1.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
         dealerCard2.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
         dealerCard3.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
@@ -135,40 +171,34 @@ public class FXMLRootController implements Initializable {
         playerCard5.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
         playerCard6.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
         playerCard7.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
-
-        this.dealer = new Player("Dealer");
-        this.player = new Player("Gigel");
-        this.deck = new Deck();
-        playerName.setText(player.getName());
-
     }
 
-    //returns the parameter for the imageView.setImage() method
-    private Image getCardImage(Card card) {
-        if (card.getIsVisible()) {
-            return card.getCARD_FRONT();
-        } else {
-            return card.getCARD_BACK();
-        }
-
-    }
-
+    //start a new hand in the same game
     public void startGame() {
-        messageLabel.setText("");
-        deck.shuffle();
-        deck.deal(dealer);
-        dealer.getHand().get(0).setIsVisible(false);
-        deck.deal(dealer);
-        displayDealerCards();
-        deck.deal(player);
-        deck.deal(player);
-        displayPlayerCards();
+        messageLabel.setText("");//clear message text label
+        deck.shuffle();//shuffle the deck
+        clearTableCards();
+        dealer.reset();//reset dealer hand
+        player.reset();//reset player hand
+        dealerHandValue.setDisable(true);
+        dealerHandValue.setText("Hidden");
+        
+        //start giving cards
+        deck.deal(dealer);//card1 to dealer
+        dealer.getHand().get(0).setIsVisible(false);// set card1 facedown
+        deck.deal(dealer);//card2 to dealer
+        displayDealerCards();//update dealer hand images
+        deck.deal(player);//card1 to player
+        deck.deal(player);//card2 to player
+        displayPlayerCards();//update player hand images
 
-        playerHandValue.setText("" + player.getHandValue());
+        playerHandValue.setText("" + player.getHandValue());//update player hand value label
 
-        if ((dealer.getHandValue() == WIN_SCORE) && (player.getHandValue() == WIN_SCORE)) {
-            endGame();
-        } else if ((dealer.getHandValue() == WIN_SCORE) || (player.getHandValue() == WIN_SCORE)) {
+        hitButton.setDisable(false);
+        standButton.setDisable(false);
+        dealButton.setDisable(true);
+        //check for blackjack and dual blackjack. if true endgame
+        if ((dealer.getHandValue() == WIN_SCORE) || (player.getHandValue() == WIN_SCORE)) {
             endGame();
         }
 
@@ -178,40 +208,43 @@ public class FXMLRootController implements Initializable {
      * calculates the winner and ends the current hand
      */
     private void endGame() {
-        dealer.getHand().get(0).setIsVisible(true);
-        displayDealerCards();
-        int dHandValue = dealer.getHandValue();
-        int pHandValue = player.getHandValue();
-        String winner = "";
+        dealer.getHand().get(0).setIsVisible(true);//set dealer card1 faceup
+        displayDealerCards();//update dealer  displayed card images
+        int dHandValue = dealer.getHandValue();//get final value of dealer hand
+        int pHandValue = player.getHandValue();//get final value of player hand
+        String winner = "";//message to be displayed after evaluation in message label
 
         if (dHandValue == WIN_SCORE && pHandValue == WIN_SCORE) {
-            winner = "It's a tie: Dealer: " + dHandValue + " Player: " + pHandValue;
-        } else if (dHandValue == pHandValue) {
+            //check for blackjack tie. no one wins
             winner = "It's a tie: Dealer: " + dHandValue + " Player: " + pHandValue;
         } else if (dHandValue == WIN_SCORE || pHandValue > WIN_SCORE || (dHandValue < WIN_SCORE && dHandValue > pHandValue)) {
-            if (dealer.getHandValue() == 21) {
-                System.out.println("!!!!!BLACKJACK!!!!!");
-            }
-            winner = "DEALER WINS!!!";
-            dealer.setScore(dealer.getScore() + 1);
+            //dealer wins. check for blackjack, player bust, higher than player
+
+            winner = "DEALER WINS!!!";//set win message
+            dealer.setScore(dealer.getScore() + 1);//update dealer score 
 
         } else if (pHandValue == WIN_SCORE || dHandValue > WIN_SCORE || pHandValue > dHandValue) {
-            if (player.getHandValue() == 21) {
-                System.out.println("!!!!!BLACKJACK!!!!!");
-            }
-            winner = player.getName() + " WINS!!!";
-            player.setScore(player.getScore() + 1);
+            //player wins.check for blackjack, dealer bust, higher than dealer
+
+            winner = "PLAYER WINS!!!";//set win message
+            player.setScore(player.getScore() + 1);//update player score
 
         }
 
-        messageLabel.setText(winner);
-        dealer.reset();
-        player.reset();
+        messageLabel.setText(winner);//set message label with win message
+        dealerHandValue.setDisable(false);
+        dealerHandValue.setText("" + dealer.getHandValue());
+        dealerScore.setText(dealer.getScore() + "   points");
+        playerScore.setText(player.getScore() + "   points");
+        hitButton.setDisable(true);
+        standButton.setDisable(true);
+        dealButton.setDisable(false);
 
     }
 
     private void displayPlayerCards() {
         ImageView[] playerStack = {playerCard1, playerCard2, playerCard3, playerCard4, playerCard5, playerCard6, playerCard7};
+
         if (player.getHand().isEmpty()) {
             for (ImageView playerStack1 : playerStack) {
                 playerStack1.setImage(new Image(getClass().getResourceAsStream("img/no_card.png")));
